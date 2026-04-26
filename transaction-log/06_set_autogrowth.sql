@@ -1,0 +1,8 @@
+-- Estándar de autogrowth
+
+ALTER DATABASE [NOMBRE_DB]
+MODIFY FILE (
+    NAME = N'NOMBRE_LOGICO_LOG',
+    FILEGROWTH = 1024MB
+);
+GO

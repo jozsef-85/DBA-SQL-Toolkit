@@ -1,0 +1,5 @@
+-- Backup de log manual (usar en incidentes)
+
+BACKUP LOG [NOMBRE_DB]
+TO DISK = 'K:\SQL_BACKUP\MANUAL\NOMBRE_DB.trn'
+WITH COMPRESSION, CHECKSUM, STATS = 10;
