@@ -19,6 +19,7 @@ sqlserver/
   blocking/          Bloqueos, bloqueadores, locks y transacciones abiertas.
   alwayson/          Validaciones Always On Availability Groups.
   maintenance/       Acciones operativas controladas.
+    dbcc/            Diagnostico y operacion CHECKDB/DBCC.
 
 docs/
   runbooks/          Guias de uso y orden de accion.
@@ -62,11 +63,22 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 4. `sqlserver/blocking/04_locked_resources.sql`
 5. `sqlserver/blocking/05_open_transactions.sql`
 
+### DBCC / CHECKDB
+
+1. `sqlserver/maintenance/dbcc/01_detectar_dbcc_activo.sql`
+2. `sqlserver/maintenance/dbcc/02_validar_bloqueo_impacto.sql`
+3. `sqlserver/maintenance/dbcc/03_validar_snapshots_y_archivos_dbcc.sql`
+4. `sqlserver/maintenance/dbcc/04_revisar_errorlog_dbcc.sql`
+5. `sqlserver/maintenance/dbcc/05_monitorear_rollback_dbcc.sql`
+6. `sqlserver/maintenance/dbcc/06_validacion_post_limpieza.sql`
+7. `sqlserver/maintenance/dbcc/07_job_checkdb_physical_only_ao.sql`
+
 ## Documentacion
 
 - `docs/runbooks/sqlserver-troubleshooting.md`: guia para incidentes de lentitud, I/O, bloqueo y transacciones.
 - `docs/cases/capacity-log/`: casos de capacidad y transaction log.
 - `docs/cases/alwayson/`: casos Always On / WSFC.
+- `docs/cases/dbcc/`: casos DBCC / CHECKDB.
 
 ## Criterio de ejecucion
 

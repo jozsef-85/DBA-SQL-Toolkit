@@ -34,13 +34,13 @@ La espera `EXECSYNC` puede corresponder a sincronizacion interna de workers para
 
 ## Scripts relacionados
 
-- `sqlserver/troubleshooting/dbcc/01_detectar_dbcc_activo.sql`
-- `sqlserver/troubleshooting/dbcc/02_validar_bloqueo_impacto.sql`
-- `sqlserver/troubleshooting/dbcc/03_validar_snapshots_y_archivos_dbcc.sql`
-- `sqlserver/troubleshooting/dbcc/04_revisar_errorlog_dbcc.sql`
-- `sqlserver/troubleshooting/dbcc/05_cancelar_dbcc_controlado.sql`
-- `sqlserver/troubleshooting/dbcc/06_validacion_post_limpieza.sql`
-- `sqlserver/troubleshooting/dbcc/07_job_checkdb_physical_only_ao.sql`
+- `sqlserver/maintenance/dbcc/01_detectar_dbcc_activo.sql`
+- `sqlserver/maintenance/dbcc/02_validar_bloqueo_impacto.sql`
+- `sqlserver/maintenance/dbcc/03_validar_snapshots_y_archivos_dbcc.sql`
+- `sqlserver/maintenance/dbcc/04_revisar_errorlog_dbcc.sql`
+- `sqlserver/maintenance/dbcc/05_monitorear_rollback_dbcc.sql`
+- `sqlserver/maintenance/dbcc/06_validacion_post_limpieza.sql`
+- `sqlserver/maintenance/dbcc/07_job_checkdb_physical_only_ao.sql`
 
 ## Recomendacion de mantenimiento
 

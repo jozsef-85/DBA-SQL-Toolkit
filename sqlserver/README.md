@@ -10,6 +10,7 @@ Scripts T-SQL organizados por dominio operativo DBA.
 - `blocking/`: sesiones bloqueadas, bloqueadores, locks y transacciones abiertas.
 - `alwayson/`: validaciones de Availability Groups.
 - `maintenance/`: acciones operativas controladas que requieren validacion previa.
+- `maintenance/dbcc/`: diagnostico, monitoreo y operacion CHECKDB/DBCC.
 
 ## Regla practica
 
