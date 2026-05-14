@@ -1,56 +1,78 @@
 # DBA-SQL-Toolkit
 
-Repositorio personal de scripts T-SQL para diagnóstico, troubleshooting y operación en SQL Server.
-
-## Escenario de uso
-
-Scripts utilizados en un caso de análisis de capacidad en entorno controlado (preproductivo), enfocado en:
-
-- Sobredimensionamiento de archivos MDF/NDF
-- Validación de uso real de espacio
-- Análisis de Transaction Log (TLOG)
-- Revisión de espacio por volumen
-- Ajuste de FILEGROWTH
-- Ejecución controlada de shrink
-- Validación de rol en Always On AG
-
-> No se incluyen nombres reales de bases de datos ni clientes.
+Repositorio personal de scripts T-SQL para diagnostico, troubleshooting y operacion en SQL Server.
 
 ## Objetivo
 
-- Tener scripts reutilizables para análisis rápido
-- Evitar crecimiento descontrolado de archivos
-- Mejorar prácticas operativas DBA
-
-## Uso
-
-1. Ejecutar primero scripts de diagnostico.
-2. Analizar resultados y confirmar base, archivo, replica o sesion afectada.
-3. Ejecutar acciones operativas solo si aplica.
-4. Validar resultados despues de cada cambio.
+- Tener scripts reutilizables para analisis rapido.
+- Ordenar runbooks DBA por dominio operativo.
+- Evitar acciones riesgosas sin diagnostico previo.
+- Documentar casos reales sin exponer nombres de clientes o bases productivas.
 
 ## Estructura
 
-- `sqlserver/capacity-and-log/`: diagnostico de capacidad, archivos, volumenes, FILEGROWTH, shrink controlado y Always On AG.
-- `sqlserver/troubleshooting/input/`: waits, sesiones activas e I/O por intervalo.
-- `sqlserver/troubleshooting/transactions/`: bloqueo, locks, sesiones bloqueantes y transacciones abiertas.
-- `transaction-log/`: plantillas rapidas para inventario, monitoreo y operacion del transaction log.
-- `docs/`: casos y notas operativas.
+```text
+sqlserver/
+  capacity/          Inventario de tamanos, espacio usado, volumenes y FILEGROWTH.
+  transaction-log/   Diagnostico y operacion del transaction log.
+  performance/       Waits, sesiones activas e I/O por intervalo.
+  blocking/          Bloqueos, bloqueadores, locks y transacciones abiertas.
+  alwayson/          Validaciones Always On Availability Groups.
+  maintenance/       Acciones operativas controladas.
 
-Los scripts numerados representan el orden sugerido de accion dentro de cada carpeta. La idea es partir por diagnostico amplio, confirmar el origen del problema y recien despues ejecutar acciones operativas.
+docs/
+  runbooks/          Guias de uso y orden de accion.
+  cases/             Casos documentados por tema.
+```
 
-## Runbooks principales
+## Orden de accion
 
-- Capacidad y log: `sqlserver/capacity-and-log/01_*` a `07_*`.
-- Transaction log operativo: `transaction-log/01_*` a `07_*`.
-- Lentitud, I/O o carga alta: `sqlserver/troubleshooting/input/01_*` a `04_*`.
-- Bloqueos y transacciones: `sqlserver/troubleshooting/transactions/01_*` a `05_*`.
+Los scripts numerados representan el orden sugerido dentro de cada categoria. La idea es partir por diagnostico amplio, confirmar el origen del problema y recien despues ejecutar acciones operativas.
+
+### Capacidad
+
+1. `sqlserver/capacity/01_database_size_gb.sql`
+2. `sqlserver/capacity/02_file_space_used_gb.sql`
+3. `sqlserver/capacity/03_volume_free_space.sql`
+4. `sqlserver/capacity/04_validate_filegrowth.sql`
+
+### Transaction Log
+
+1. `sqlserver/transaction-log/01_inventory_db_log_sizes.sql`
+2. `sqlserver/transaction-log/02_log_status_gb.sql`
+3. `sqlserver/transaction-log/03_log_space_and_reuse.sql`
+4. `sqlserver/transaction-log/04_vlf_analysis.sql`
+5. `sqlserver/transaction-log/05_monitor_log.sql`
+6. `sqlserver/transaction-log/06_backup_log_manual.sql`
+7. `sqlserver/transaction-log/07_shrink_log_controlled.sql`
+8. `sqlserver/transaction-log/08_set_autogrowth.sql`
+
+### Performance
+
+1. `sqlserver/performance/waits/01_waits_overview.sql`
+2. `sqlserver/performance/sessions/01_user_sessions.sql`
+3. `sqlserver/performance/sessions/02_top_active_sessions.sql`
+4. `sqlserver/performance/io/01_io_file_interval.sql`
+
+### Blocking
+
+1. `sqlserver/blocking/01_blocked_sessions.sql`
+2. `sqlserver/blocking/02_blocking_session_detail.sql`
+3. `sqlserver/blocking/03_blocking_inputbuffer.sql`
+4. `sqlserver/blocking/04_locked_resources.sql`
+5. `sqlserver/blocking/05_open_transactions.sql`
+
+## Documentacion
+
+- `docs/runbooks/sqlserver-troubleshooting.md`: guia para incidentes de lentitud, I/O, bloqueo y transacciones.
+- `docs/cases/capacity-log/`: casos de capacidad y transaction log.
+- `docs/cases/alwayson/`: casos Always On / WSFC.
 
 ## Criterio de ejecucion
 
 - Scripts de diagnostico: solo lectura, pensados para correr durante analisis.
 - Scripts operativos: pueden ejecutar `BACKUP LOG`, `ALTER DATABASE` o `DBCC SHRINKFILE`; revisar placeholders antes de correr.
-- Scripts con `@session_id`: dejar `NULL` para revisar el escenario activo cuando aplique, o definir un SPID obtenido desde `sesionesbloqueadas.sql`.
+- Scripts con `@session_id`: dejar `NULL` para revisar el escenario activo cuando aplique, o definir un SPID obtenido desde el diagnostico previo.
 
 ## Advertencia
 
