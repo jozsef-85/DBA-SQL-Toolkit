@@ -16,6 +16,8 @@ sqlserver/
   capacity/          Inventario de tamanos, espacio usado, volumenes y FILEGROWTH.
   transaction-log/   Diagnostico y operacion del transaction log.
   performance/       Waits, sesiones activas e I/O por intervalo.
+    connections/     Conexiones por base, login y aplicacion.
+    memory/          Uso de buffer pool por base de datos.
   blocking/          Bloqueos, bloqueadores, locks y transacciones abiertas.
   alwayson/          Validaciones Always On Availability Groups.
   maintenance/       Acciones operativas controladas.
@@ -53,7 +55,12 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 1. `sqlserver/performance/waits/01_waits_overview.sql`
 2. `sqlserver/performance/sessions/01_user_sessions.sql`
 3. `sqlserver/performance/sessions/02_top_active_sessions.sql`
-4. `sqlserver/performance/io/01_io_file_interval.sql`
+4. `sqlserver/performance/sessions/03_active_requests_detail.sql`
+5. `sqlserver/performance/connections/01_connections_by_database.sql`
+6. `sqlserver/performance/connections/02_connections_by_login.sql`
+7. `sqlserver/performance/connections/03_connections_by_application.sql`
+8. `sqlserver/performance/memory/01_buffer_pool_usage_by_database.sql`
+9. `sqlserver/performance/io/01_io_file_interval.sql`
 
 ### Blocking
 
