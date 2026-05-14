@@ -1,3 +1,12 @@
+/*
+    Script: 01_blocked_sessions.sql
+    Uso:
+        Primer paso ante sospecha de bloqueo.
+        Lista sesiones actualmente bloqueadas.
+        Usar session_id para revisar la sesion afectada.
+        Usar blocking_session_id para revisar la sesion bloqueante.
+*/
+
 SELECT
     r.session_id,
     r.blocking_session_id,

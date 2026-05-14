@@ -20,6 +20,9 @@
 USE [NombreBase];
 GO
 
+DECLARE @logical_file_name sysname = N'NombreLogicoArchivo';
+DECLARE @target_size_mb INT = 150000;
+
 -- 1. Validar archivos antes del shrink
 SELECT
     DB_NAME() AS database_name,
@@ -32,11 +35,11 @@ SELECT
 FROM sys.database_files
 ORDER BY size_mb DESC;
 
--- 2. Ejecutar shrink por archivo lógico.
--- Reemplazar NombreLogicoArchivo y TargetMB.
--- Ejemplo: DBCC SHRINKFILE (N'Archivo_Data_01', 150000);
+-- 2. Ejecutar shrink por archivo logico.
+-- Reemplazar @logical_file_name y @target_size_mb antes de ejecutar.
+-- Ejemplo: @logical_file_name = N'Archivo_Data_01', @target_size_mb = 150000.
 
-DBCC SHRINKFILE (N'NombreLogicoArchivo', TargetMB);
+DBCC SHRINKFILE (@logical_file_name, @target_size_mb);
 
 -- 3. Validar resultado después del shrink
 SELECT

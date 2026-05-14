@@ -1,8 +1,16 @@
--- Uso real del log
+/*
+    Script: 02_log_space_and_reuse.sql
+    Uso:
+        Revisa uso actual del transaction log, estado de reutilizacion
+        y ultimo backup de log registrado en msdb.
+        Ejecutar antes de decidir backup manual, shrink o ajuste de crecimiento.
+*/
+
+-- Uso real del log.
 
 DBCC SQLPERF(LOGSPACE);
 
--- Estado de reutilización
+-- Estado de reutilizacion.
 
 SELECT
     name,
@@ -11,7 +19,7 @@ SELECT
 FROM sys.databases
 ORDER BY name;
 
--- Ultimo Back ejecutado
+-- Ultimo backup de log ejecutado.
 
 USE master;
 GO

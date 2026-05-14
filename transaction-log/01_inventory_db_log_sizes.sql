@@ -1,4 +1,10 @@
--- Inventario de tamaños DATA vs LOG
+/*
+    Script: 01_inventory_db_log_sizes.sql
+    Uso:
+        Inventario rapido de tamanos DATA vs LOG por base de usuario.
+        Ejecutar a nivel de instancia para detectar logs sobredimensionados
+        o bases con crecimiento relevante.
+*/
 
 SELECT
     @@SERVERNAME AS instance_name,

@@ -1,4 +1,12 @@
--- Monitoreo rápido de logs
+/*
+    Script: 07_monitor_log.sql
+    Uso:
+        Monitoreo rapido de uso de transaction log, VLF y ultimo backup.
+        Ejecutar a nivel de instancia durante seguimiento operativo.
+
+    Requisito:
+        sys.dm_db_log_stats esta disponible desde SQL Server 2016 SP2.
+*/
 
 SELECT
     d.name,
