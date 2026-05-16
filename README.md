@@ -20,6 +20,7 @@ sqlserver/
     memory/          Uso de buffer pool por base de datos.
   blocking/          Bloqueos, bloqueadores, locks y transacciones abiertas.
   alwayson/          Validaciones Always On Availability Groups.
+  mirroring/         Database Mirroring en workgroup con certificados.
   maintenance/       Acciones operativas controladas.
     dbcc/            Diagnostico y operacion CHECKDB/DBCC.
 
@@ -70,6 +71,16 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 4. `sqlserver/blocking/04_locked_resources.sql`
 5. `sqlserver/blocking/05_open_transactions.sql`
 
+### Database Mirroring / Workgroup con certificados
+
+1. `sqlserver/mirroring/01_prechecks_mirroring_workgroup.sql`
+2. `sqlserver/mirroring/02_nodo1_create_master_key_certificate_endpoint.sql`
+3. `sqlserver/mirroring/03_nodo2_create_master_key_certificate_endpoint.sql`
+4. `sqlserver/mirroring/04_import_remote_certificates_and_grant_connect.sql`
+5. `sqlserver/mirroring/05_prepare_database_full_and_restore_norecovery.sql`
+6. `sqlserver/mirroring/06_set_partner_validate_and_manual_failover.sql`
+7. `sqlserver/mirroring/07_troubleshooting_error_1418_and_handshake.sql`
+
 ### DBCC / CHECKDB
 
 1. `sqlserver/maintenance/dbcc/01_detectar_dbcc_activo.sql`
@@ -83,17 +94,20 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 ## Documentacion
 
 - `docs/runbooks/sqlserver-troubleshooting.md`: guia para incidentes de lentitud, I/O, bloqueo y transacciones.
+- `docs/runbooks/sqlserver-database-mirroring-workgroup-certificados.md`: guia completa para mirroring fuera de dominio con certificados.
 - `docs/cases/capacity-log/`: casos de capacidad y transaction log.
 - `docs/cases/alwayson/`: casos Always On / WSFC.
 - `docs/cases/dbcc/`: casos DBCC / CHECKDB.
+- `docs/cases/mirroring/`: casos Database Mirroring.
 
 ## Criterio de ejecucion
 
 - Scripts de diagnostico: solo lectura, pensados para correr durante analisis.
-- Scripts operativos: pueden ejecutar `BACKUP LOG`, `ALTER DATABASE` o `DBCC SHRINKFILE`; revisar placeholders antes de correr.
+- Scripts operativos: pueden ejecutar `BACKUP LOG`, `ALTER DATABASE`, `RESTORE`, `CREATE ENDPOINT`, `CREATE CERTIFICATE` o `DBCC SHRINKFILE`; revisar placeholders antes de correr.
 - Scripts con `@session_id`: dejar `NULL` para revisar el escenario activo cuando aplique, o definir un SPID obtenido desde el diagnostico previo.
 
 ## Advertencia
 
 No usar shrink como mantenimiento rutinario.
 Validar siempre recovery model, backups, espacio libre, rol PRIMARY en AG y ventana operacional antes de ejecutar acciones.
+Para Database Mirroring en workgroup, validar certificados, endpoints, permisos `CONNECT`, puerto de mirroring y estado `RESTORING` antes de ejecutar `SET PARTNER`.
