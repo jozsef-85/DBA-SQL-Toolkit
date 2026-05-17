@@ -9,6 +9,11 @@
    Database Mirroring requiere recovery model FULL.
    La base mirror debe quedar en RESTORING mediante RESTORE ... WITH NORECOVERY.
 
+ Ajuste importante por caso real:
+   Para evitar Msg 1478, no mezclar backups de intentos anteriores.
+   El LOG restaurado en el mirror debe pertenecer a la misma cadena del FULL usado
+   y debe ser posterior al FULL generado para esta configuracion.
+
  Caso documentado:
    Base: AdventureWorks2022
    Nodo 1: Principal inicial
@@ -24,8 +29,23 @@ USE master;
 GO
 
 DECLARE @DatabaseName sysname = N'AdventureWorks2022';
+DECLARE @BackupFolder nvarchar(260) = N'C:\Temp\';
+DECLARE @FullBackupFile nvarchar(4000) = @BackupFolder + @DatabaseName + N'_Mirror_FULL.bak';
+DECLARE @LogBackupFile  nvarchar(4000) = @BackupFolder + @DatabaseName + N'_Mirror_LOG.trn';
+DECLARE @sql nvarchar(max);
 
-/* 1. Cambiar a FULL si la base esta en SIMPLE.
+/* 1. Validar que la base exista y este ONLINE en el principal */
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = @DatabaseName)
+BEGIN
+    THROW 50001, 'La base indicada no existe en este nodo.', 1;
+END;
+
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = @DatabaseName AND state_desc <> 'ONLINE')
+BEGIN
+    THROW 50002, 'La base principal debe estar ONLINE antes de generar backups para mirroring.', 1;
+END;
+
+/* 2. Cambiar a FULL si la base esta en SIMPLE.
    Esto se hace en el principal. No se cambia el recovery model desde la base mirror
    mientras esta en RESTORING.
 */
@@ -36,8 +56,9 @@ IF EXISTS (
       AND recovery_model_desc <> 'FULL'
 )
 BEGIN
-    EXEC(N'ALTER DATABASE ' + QUOTENAME(@DatabaseName) + N' SET RECOVERY FULL;');
-END
+    SET @sql = N'ALTER DATABASE ' + QUOTENAME(@DatabaseName) + N' SET RECOVERY FULL;';
+    EXEC sys.sp_executesql @sql;
+END;
 
 SELECT
     name,
@@ -47,21 +68,54 @@ FROM sys.databases
 WHERE name = @DatabaseName;
 GO
 
-/* 2. Tomar backup FULL nuevo despues de cambiar a FULL */
+/*
+================================================================================
+ 3. Limpieza recomendada de archivos antiguos
+    Ejecutar en PowerShell del Nodo 1 antes de generar los nuevos backups:
+
+    Remove-Item C:\Temp\AdventureWorks2022_Mirror_FULL.bak -ErrorAction SilentlyContinue
+    Remove-Item C:\Temp\AdventureWorks2022_Mirror_LOG.trn  -ErrorAction SilentlyContinue
+
+    Motivo:
+      Evita usar accidentalmente archivos .bak/.trn de intentos anteriores.
+================================================================================
+*/
+
+/* 4. Tomar backup FULL nuevo */
 BACKUP DATABASE [AdventureWorks2022]
 TO DISK = 'C:\Temp\AdventureWorks2022_Mirror_FULL.bak'
 WITH INIT, CHECKSUM, COMPRESSION, STATS = 10;
 GO
 
-/* 3. Opcional: tomar backup de LOG.
-   Para laboratorios con AdventureWorks y sin actividad puede no ser necesario si el
-   FULL se tomo inmediatamente despues de cambiar a FULL. En ambientes reales se
-   recomienda tomar y restaurar al menos un backup de log posterior al full.
+/* 5. Tomar backup LOG inmediatamente posterior al FULL.
+   Este paso NO es opcional para este runbook.
+   Motivo:
+     Evita Msg 1478 al ejecutar SET PARTNER, especialmente si la base tuvo actividad
+     despues del FULL o si se reconstruyo el mirror desde cero.
 */
 BACKUP LOG [AdventureWorks2022]
 TO DISK = 'C:\Temp\AdventureWorks2022_Mirror_LOG.trn'
 WITH INIT, CHECKSUM, COMPRESSION, STATS = 10;
 GO
+
+/* 6. Validar los archivos de backup antes de copiarlos al mirror */
+RESTORE HEADERONLY
+FROM DISK = 'C:\Temp\AdventureWorks2022_Mirror_FULL.bak';
+GO
+
+RESTORE HEADERONLY
+FROM DISK = 'C:\Temp\AdventureWorks2022_Mirror_LOG.trn';
+GO
+
+/*
+================================================================================
+ Copiar al Nodo 2 exactamente estos dos archivos recien generados:
+   C:\Temp\AdventureWorks2022_Mirror_FULL.bak
+   C:\Temp\AdventureWorks2022_Mirror_LOG.trn
+
+ No usar archivos .bak/.trn de practicas anteriores.
+================================================================================
+*/
 
 /*===============================================================================
  BLOQUE B - Ejecutar en NODO 2 / MIRROR
@@ -80,6 +134,16 @@ IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'AdventureWorks2022')
 BEGIN
     DROP DATABASE [AdventureWorks2022];
 END
+GO
+
+-- Validar headers de los archivos copiados al Nodo 2.
+-- Ambos deben corresponder a la misma base y a la misma cadena de backups.
+RESTORE HEADERONLY
+FROM DISK = 'C:\Temp\AdventureWorks2022_Mirror_FULL.bak';
+GO
+
+RESTORE HEADERONLY
+FROM DISK = 'C:\Temp\AdventureWorks2022_Mirror_LOG.trn';
 GO
 
 RESTORE DATABASE [AdventureWorks2022]
@@ -103,4 +167,9 @@ GO
 
 /* Resultado esperado en Nodo 2:
    AdventureWorks2022 | RESTORING | FULL
+
+ Si al ejecutar SET PARTNER aparece Msg 1478:
+   - El mirror no tiene suficiente log restaurado.
+   - Se mezclo un FULL nuevo con un LOG viejo, o falta restaurar un LOG posterior.
+   - Repetir este script desde el backup FULL nuevo y LOG nuevo, sin reutilizar archivos.
 */
