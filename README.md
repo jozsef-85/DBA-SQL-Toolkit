@@ -21,6 +21,7 @@ sqlserver/
   blocking/          Bloqueos, bloqueadores, locks y transacciones abiertas.
   alwayson/          Validaciones Always On Availability Groups.
   mirroring/         Database Mirroring en workgroup con certificados.
+    certificate-renewal/ Renovacion controlada de certificados de mirroring.
   maintenance/       Acciones operativas controladas.
     dbcc/            Diagnostico y operacion CHECKDB/DBCC.
 
@@ -81,6 +82,16 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 6. `sqlserver/mirroring/06_set_partner_validate_and_manual_failover.sql`
 7. `sqlserver/mirroring/07_troubleshooting_error_1418_and_handshake.sql`
 
+### Database Mirroring / Renovacion de certificados
+
+1. `sqlserver/mirroring/certificate-renewal/01_precheck_consolidado_certificados_mirroring.sql`
+2. `sqlserver/mirroring/certificate-renewal/02_create_and_export_local_certificates.sql`
+3. `sqlserver/mirroring/certificate-renewal/03_import_remote_public_certificates.sql`
+4. `sqlserver/mirroring/certificate-renewal/04_switch_endpoint_to_new_certificate.sql`
+5. `sqlserver/mirroring/certificate-renewal/05_postcheck_validate_mirroring.sql`
+6. `sqlserver/mirroring/certificate-renewal/06_rollback_endpoint_previous_certificate.sql`
+7. `sqlserver/mirroring/certificate-renewal/07_optional_cleanup_old_certificates.sql`
+
 ### DBCC / CHECKDB
 
 1. `sqlserver/maintenance/dbcc/01_detectar_dbcc_activo.sql`
@@ -111,3 +122,4 @@ Los scripts numerados representan el orden sugerido dentro de cada categoria. La
 No usar shrink como mantenimiento rutinario.
 Validar siempre recovery model, backups, espacio libre, rol PRIMARY en AG y ventana operacional antes de ejecutar acciones.
 Para Database Mirroring en workgroup, validar certificados, endpoints, permisos `CONNECT`, puerto de mirroring y estado `RESTORING` antes de ejecutar `SET PARTNER`.
+Para renovacion de certificados de Database Mirroring, no ejecutar `DROP CERTIFICATE` durante la ventana principal, no cambiar a `WINDOWS NEGOTIATE` si el endpoint opera con certificados y mantener certificados antiguos hasta validar estabilidad.
